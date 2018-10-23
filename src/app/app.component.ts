@@ -1,5 +1,6 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import {AuthenticationService} from "./auth.service";
 
 
 @Component({
@@ -12,9 +13,19 @@ export class AppComponent implements OnInit {
   // Define a users property to hold our user data
   users: Array<any>;
   jsonObj;
+  loggedIn: boolean = false;
+  message:string;
 
+  constructor(
+    private http: HttpClient,
+    private auth: AuthenticationService
+  ) {}
 
-  constructor(private http: HttpClient) {}
+  receiveMessage($event) {
+    this.message = $event;
+    console.log("Recieved Event");
+    this.loggedIn = true;
+  }
 
   ngOnInit(): void {
 
@@ -25,7 +36,18 @@ export class AppComponent implements OnInit {
     });
     console.log(this.jsonObj);
   }
+  logout(){
+    if(localStorage.getItem("currentUser")) {
+      this.auth.logout();
+      alert("Logged out successfully");
+      this.loggedIn = false;
+    }
+    else{
+      alert("You were not logged in");
+    }
+  }
 
+  //Destroys token when browser is closed
   @HostListener("window:onbeforeunload",["$event"])
   clearLocalStorage(event){
     localStorage.clear();}

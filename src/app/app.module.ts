@@ -13,13 +13,15 @@ import { routing} from "./app.routing";
 import { HomeComponent } from './home/home.component';
 import {JwtInterceptor} from "./jwt.interceptor";
 import {AuthGuard} from "./auth.guard";
+import { ProfileComponent } from './profile/profile.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     LoginSuccessComponent,
-    HomeComponent
+    HomeComponent,
+    ProfileComponent
 
   ],
   imports: [

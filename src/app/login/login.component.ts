@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 import {AuthenticationService} from "../auth.service";
 import { first } from 'rxjs/operators';
+import {AppComponent} from "../app.component";
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -14,10 +16,14 @@ export class LoginComponent implements OnInit {
     email:'',
     password:''
   };
+  message: "Logged in";
+  //Event Emmiter to pass data to app component
+  @Output() messageEvent = new EventEmitter<string>();
 
   constructor(
     private http: HttpClient,
-    private authenticationService: AuthenticationService
+    private authenticationService: AuthenticationService,
+    private appComp: AppComponent
   ) {}
 
   ngOnInit() {
@@ -46,13 +52,17 @@ export class LoginComponent implements OnInit {
         res => {
           console.log(res);
           alert(JSON.stringify(res));
+          this.sendMessage();
+         this.appComp.receiveMessage(res);
         },
         err => {
           console.log("Error occured");
         }
       );
   }
-
+  sendMessage() {
+    this.messageEvent.emit(this.message)
+  }
 }
 
 
