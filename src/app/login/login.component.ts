@@ -37,28 +37,18 @@ export class LoginComponent implements OnInit {
       .subscribe(
         res => {
           console.log(res);
-        },
-        err => {
-          console.log("Error occured");
-        }
-      );
 
-    const req = this.http.post('api/login', {
-      email: form.value.email,
-      password: form.value.password
-    })
-      .subscribe(
-        res => {
-          console.log(res);
-          alert(JSON.stringify(res));
+          //Event message to update state of login
           this.sendMessage();
-         this.appComp.receiveMessage(res);
+          this.appComp.receiveMessage(res);
         },
         err => {
-          console.log("Error occured");
+          console.log(err.message);
+          console.log("Login Failed");
+          alert("Auth Failed");
         }
       );
-  }
+}
 
   //Sends an event to inform the main app component that a user is logged in
   sendMessage() {

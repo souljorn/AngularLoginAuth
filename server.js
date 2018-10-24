@@ -9,12 +9,12 @@ const app = module.exports = express();
 // API file for interacting with MongoDB
 const api = require('./server/routes/api');
 var config = require('./config'); // get our config file
-var User   = require('./model/user'); // get our mongoose model
+var User   = require('./model/accounts'); // get our mongoose model
 var mongoose    = require('mongoose');
 var morgan      = require('morgan');
 
 //config
-mongoose.connect(config.database); // connect to database
+mongoose.connect(config.db.uri); // connect to database
 app.set('superSecret', config.secret); // secret variable
 
 // Parsers
@@ -36,7 +36,7 @@ app.get('*', (req, res) => {
 });
 
 //Set Port
-const port = process.env.PORT || '3000';
+const port = process.env.PORT || config.port;
 app.set('port', port);
 
 const server = http.createServer(app);

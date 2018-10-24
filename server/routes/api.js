@@ -1,62 +1,51 @@
 const express = require('express');
 const router = express.Router();
-const MongoClient = require('mongodb').MongoClient;
-const ObjectID = require('mongodb').ObjectID;
 const jwt = require('jsonwebtoken');
-const User   = require('../../model/user'); // get our mongoose model
+const Accounts   = require('../../model/accounts'); // get our mongoose model
 const app = require('../../server');
 
-// Connect
-const connection = (closure) => {
-    return MongoClient.connect('mongodb://tbotelho:weaksauce123@ds033484.mlab.com:33484/token', (err, db) => {
-        if (err) return console.log(err);
-
-        closure(db);
-    });
-};
-
-// Error handling
-const sendError = (err, res) => {
-    response.status = 501;
-    response.message = typeof err == 'object' ? err.message : err;
-    res.status(501).json(response);
-};
-
-// Response handling
-let response = {
-    status: 200,
-    data: [],
-    message: null
-};
-
-// Get users
+// Get users diplays all the users if you hit the api/users endpoint
 router.get('/users', (req, res) => {
-  User.find({}, function(err, users) {
-  res.json(users);
+  Accounts.find({}, function(err, accounts) {
+  res.json(accounts);
+  JSON.parse(JSON.stringify(accounts));
 });
 });
 
-//*******All private routes go here****************************************
-// route to authenticate a user (POST http://localhost:8080/api/authenticate)
+//This is the Login API that checks credentials and creates a session token
+//The token is stored in local memory on the client computer and can be checked any time.
 router.post('/login', (req, res, next) => {
-User.findOne({name: req.body.email})
+Accounts.findOne({email: req.body.email})
   .exec()
-  .then(user => {
-    if(!user){
+  .then(account => {
+    //if the user doesn't exits fail
+    if(!account){
+      console.log("user failed");
+      return res.status(401).json({
+        message: 'Auth Failed'
+      });
+    }
+    if(req.body.password != account.password){
+      console.log("password failed");
       return res.status(401).json({
         message: 'Auth Failed'
       });
     }
     console.log(req.body.password);
-    console.log(user.password);
-    if(req.body.password == user.password){
+    console.log(account.password);
+    if(req.body.password == account.password){
+
+
       // if user is found and password is right
       // create a token with only our given payload
       // we don't want to pass in the entire user since that has the password
       const payload = {
-        admin: user.admin
+        email: account.email
       };
 
+      //Todo add payload to the token to use for getting user profile later
+      //Todo Will want to attach a user to the token so only the user attached to the token
+      //Todo can access their profile
       var token = jwt.sign(payload, app.get('superSecret'), {
         expiresIn: '180m' // expires in 3hours
       });
@@ -75,9 +64,9 @@ User.findOne({name: req.body.email})
     }
   })
   .catch(err => {
-    console.log(err);
     res.status(500).json({
-      error: err
+      error: err,
+      message: 'Auth failed'
     });
   });
 });
@@ -113,47 +102,6 @@ User.findOne({name: req.body.email})
 //
 //   }
 // });
-
-router.post('/authenticate', function(req, res) {
-
-  // find the user
-  User.findOne({
-    name: req.body.name
-  }, function(err, user) {
-
-    if (err) throw err;
-
-    if (!user) {
-      res.json({ success: false, message: 'Authentication failed. User not found.' });
-    } else if (user) {
-
-      // check if password matches
-      if (user.password != req.body.password) {
-        res.json({ success: false, message: 'Authentication failed. Wrong password.' });
-      } else {
-
-        // if user is found and password is right
-        // create a token with only our given payload
-        // we don't want to pass in the entire user since that has the password
-        const payload = {
-          admin: user.admin
-        };
-        var token = jwt.sign(payload, app.get('superSecret'), {
-          expiresIn: '180m' // expires in 3hours
-        });
-
-        // return the information including token as JSON
-        res.json({
-          success: true,
-          message: 'Enjoy your token!',
-          token: token
-        });
-      }
-
-    }
-
-  });
-});
 
 
 module.exports = router;
