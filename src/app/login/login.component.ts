@@ -12,11 +12,9 @@ import {AppComponent} from "../app.component";
 })
 
 export class LoginComponent implements OnInit {
-  Login ={
-    email:'',
-    password:''
-  };
+
   message: "Logged in";
+
   //Event Emmiter to pass data to app component
   @Output() messageEvent = new EventEmitter<string>();
 
@@ -34,6 +32,7 @@ export class LoginComponent implements OnInit {
   loginUser(form: NgForm) {
     console.log(form.value);
 
+    //Calling the authentication service
     this.authenticationService.login(form.value.email, form.value.password).pipe(first())
       .subscribe(
         res => {
@@ -60,6 +59,8 @@ export class LoginComponent implements OnInit {
         }
       );
   }
+
+  //Sends an event to inform the main app component that a user is logged in
   sendMessage() {
     this.messageEvent.emit(this.message)
   }

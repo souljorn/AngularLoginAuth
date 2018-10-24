@@ -2,18 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import {Router} from "@angular/router";
-import * as jwt_decode from 'jwt-decode';
 
+//Name of the token in local storage
 export const TOKEN_NAME: string = 'currentUser';
 
 @Injectable()
 export class AuthenticationService {
   constructor(private http: HttpClient,
               private router: Router
-
-
   ) { }
 
+  //Login method that gets a token and then sets the token in local storage
   login(email: string, password: string) {
     return this.http.post<any>(`/api/login`, { email: email, password: password })
       .pipe(map(user => {
@@ -23,6 +22,8 @@ export class AuthenticationService {
           localStorage.setItem('currentUser', JSON.stringify(user));
           let currentUser = JSON.parse(localStorage.getItem('currentUser'));
           console.log("Print out the Token for Current user:" +currentUser.token);
+
+          //Where to navigate after successful login
           this.router.navigate(['/loginSuccess']);
         }
         console.log("login called");
@@ -30,8 +31,8 @@ export class AuthenticationService {
       }));
   }
 
+  // remove user from local storage to log user out
   logout() {
-    // remove user from local storage to log user out
     localStorage.removeItem('currentUser');
   }
 }

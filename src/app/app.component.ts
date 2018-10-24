@@ -8,12 +8,12 @@ import {AuthenticationService} from "./auth.service";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
 
+export class AppComponent implements OnInit {
   // Define a users property to hold our user data
   users: Array<any>;
   jsonObj;
-  loggedIn: boolean = false;
+  loggedIn: boolean = false;  //Bool to signify if user is logged in
   message:string;
 
   constructor(
@@ -21,6 +21,7 @@ export class AppComponent implements OnInit {
     private auth: AuthenticationService
   ) {}
 
+  //Received the event from the login component
   receiveMessage($event) {
     this.message = $event;
     console.log("Recieved Event");
@@ -34,8 +35,11 @@ export class AppComponent implements OnInit {
       this.jsonObj =JSON.parse(JSON.stringify(data));
       this.users =JSON.parse(JSON.stringify(data));
     });
+
     console.log(this.jsonObj);
   }
+
+  //Function called when logout button is clicked
   logout(){
     if(localStorage.getItem("currentUser")) {
       this.auth.logout();
